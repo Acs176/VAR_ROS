@@ -1,0 +1,34 @@
+GAZEBO
+
+roslaunch turtlebot_gazebo_multiple create_multi_robot.launch
+
+RVIZ
+
+roslaunch turtlebot3_gazebo turtlebot3_gazebo_rviz.launch
+
+VELOCITY COMMANDS
+
+rosrun send_velocity_commands send_velocity_commands_node
+
+TELEOP
+
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+
+PUBLICAR MAPA
+
+rosrun map_server map_server src/maps/map1.yaml
+
+AMCL
+
+roslaunch turtlebot3_navigation amcl.launch map_file:=src/maps/map1.yaml
+
+MOVE_BASE
+
+roslaunch turtlebot3_navigation move_base.launch 
+
+export TURTLEBOT3_MODEL=waffle
+source devel/setup.bash
+
+RECORD MAP
+
+rosrun gmapping slam_gmapping scan:=scan
