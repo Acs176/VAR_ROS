@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(my_nav_goals)
+project(launch_all)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,8 +8,11 @@ project(my_nav_goals)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  rospy
+  map_server
+  teleop_twist_keyboard
+  turtlebot3_gazebo
+  turtlebot3_navigation
+  turtlebot_gazebo_multiple
 )
 
 ## System dependencies are found with CMake's conventions
@@ -20,8 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
-add_executable(${PROJECT_NAME}_node src/nav.py)
-target_link_libraries(my_nav_goals_node ${catkin_LIBRARIES})
+
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -70,7 +72,7 @@ target_link_libraries(my_nav_goals_node ${catkin_LIBRARIES})
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   geometry_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -104,8 +106,8 @@ target_link_libraries(my_nav_goals_node ${catkin_LIBRARIES})
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES my_nav_goals
-#  CATKIN_DEPENDS geometry_msgs roscpp
+#  LIBRARIES launch_all
+#  CATKIN_DEPENDS map_server teleop_twist_keyboard turtlebot3_gazebo turtlebot3_navigation turtlebot_gazebo_multiple
 #  DEPENDS system_lib
 )
 
@@ -122,7 +124,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/my_nav_goals.cpp
+#   src/${PROJECT_NAME}/launch_all.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -133,7 +135,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/my_nav_goals_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/launch_all_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,7 +199,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_my_nav_goals.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_launch_all.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

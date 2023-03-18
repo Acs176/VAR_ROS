@@ -818,19 +818,6 @@ turtlebot3_msgs_genlisp/fast:
 .PHONY : turtlebot3_msgs_genlisp/fast
 
 #=============================================================================
-# Target rules for targets named my_nav_goals_node
-
-# Build rule for target.
-my_nav_goals_node: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 my_nav_goals_node
-.PHONY : my_nav_goals_node
-
-# fast build rule for target.
-my_nav_goals_node/fast:
-	$(MAKE) -f my_nav_goals/CMakeFiles/my_nav_goals_node.dir/build.make my_nav_goals/CMakeFiles/my_nav_goals_node.dir/build
-.PHONY : my_nav_goals_node/fast
-
-#=============================================================================
 # Target rules for targets named _run_tests_map_server_rostest_test_rtest.xml
 
 # Build rule for target.
@@ -2285,6 +2272,19 @@ _run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch: cmake_
 _run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch/fast:
 	$(MAKE) -f slam_gmapping/gmapping/CMakeFiles/_run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch.dir/build.make slam_gmapping/gmapping/CMakeFiles/_run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch.dir/build
 .PHONY : _run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch/fast
+
+#=============================================================================
+# Target rules for targets named rviz_click_to_2d
+
+# Build rule for target.
+rviz_click_to_2d: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rviz_click_to_2d
+.PHONY : rviz_click_to_2d
+
+# fast build rule for target.
+rviz_click_to_2d/fast:
+	$(MAKE) -f localization_data_pub/CMakeFiles/rviz_click_to_2d.dir/build.make localization_data_pub/CMakeFiles/rviz_click_to_2d.dir/build
+.PHONY : rviz_click_to_2d/fast
 
 #=============================================================================
 # Target rules for targets named amcl_global_localization_stage_indexed.bag
@@ -5404,7 +5404,6 @@ help:
 	@echo "... turtlebot3_msgs_generate_messages_eus"
 	@echo "... turtlebot3_msgs_generate_messages_lisp"
 	@echo "... turtlebot3_msgs_genlisp"
-	@echo "... my_nav_goals_node"
 	@echo "... _run_tests_map_server_rostest_test_rtest.xml"
 	@echo "... run_tests_map_server_rostest_test_rtest.xml"
 	@echo "... tf2_msgs_generate_messages_lisp"
@@ -5517,6 +5516,7 @@ help:
 	@echo "... run_tests_gmapping_rostest_test_basic_localization_symmetry.launch"
 	@echo "... run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch"
 	@echo "... _run_tests_gmapping_rostest_test_basic_localization_stage_replay2.launch"
+	@echo "... rviz_click_to_2d"
 	@echo "... amcl_global_localization_stage_indexed.bag"
 	@echo "... amcl_sensors"
 	@echo "... _run_tests_amcl_rostest_test_texas_willow_hallway_loop.xml"

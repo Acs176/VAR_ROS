@@ -1,0 +1,13 @@
+<launch>
+    <include file="$(find turtlebot_gazebo_multiple)/launch/create_multi_robot.launch">
+    </include>
+    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_gazebo_rviz.launch"/>
+    
+    <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="/home/adri/ROS/catkin_ws/src/maps/map3.yaml" output="screen"/>
+    
+    <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
+    </include>
+
+    <include file="$(find turtlebot3_navigation)/launch/move_base.launch" />
+</launch>
