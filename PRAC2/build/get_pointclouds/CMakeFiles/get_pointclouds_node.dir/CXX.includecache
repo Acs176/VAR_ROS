@@ -37,6 +37,8 @@ iostream
 -
 pcl/registration/correspondence_rejection_sample_consensus.h
 -
+pcl/registration/correspondence_estimation.h
+-
 pcl/keypoints/iss_3d.h
 -
 
@@ -3076,6 +3078,22 @@ cstddef
 type_traits
 -
 
+/usr/include/pcl-1.10/pcl/registration/correspondence_estimation.h
+string
+-
+pcl/pcl_base.h
+-
+pcl/common/transforms.h
+-
+pcl/search/kdtree.h
+-
+pcl/pcl_macros.h
+-
+pcl/registration/correspondence_types.h
+-
+pcl/registration/impl/correspondence_estimation.hpp
+-
+
 /usr/include/pcl-1.10/pcl/registration/correspondence_rejection.h
 pcl/registration/correspondence_types.h
 -
@@ -3122,6 +3140,12 @@ Eigen/Geometry
 unsupported/Eigen/Polynomials
 -
 Eigen/Dense
+-
+
+/usr/include/pcl-1.10/pcl/registration/impl/correspondence_estimation.hpp
+pcl/common/io.h
+-
+pcl/common/copy_point.h
 -
 
 /usr/include/pcl-1.10/pcl/registration/impl/correspondence_rejection_sample_consensus.hpp

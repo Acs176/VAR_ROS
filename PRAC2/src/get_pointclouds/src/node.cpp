@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <pcl/registration/correspondence_rejection_sample_consensus.h>
+#include <pcl/registration/correspondence_estimation.h>
 #include <pcl/keypoints/iss_3d.h>
 
 // for x x1
@@ -72,6 +73,31 @@ void normalVis(){
 	}
 }
 
+void visualizarCorrespondencias(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& c1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& c2, pcl::CorrespondencesPtr correspondences){
+	pcl::visualization::PCLVisualizer viewer("ISS Keypoints");
+	viewer.addPointCloud(c1, "yepa");
+	Eigen::Matrix4f transformation_matrix = Eigen::Matrix4f::Identity();
+	transformation_matrix(0, 3) = 5.0;  // Translate by 10m in the X-axis
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::transformPointCloud(*c2, *transformed_cloud, transformation_matrix);
+	viewer.addPointCloud(transformed_cloud, "yepa2");
+
+	int counter=0;
+	for(size_t i = 0; i < correspondences->size(); ++i){
+		counter++;
+		pcl::Correspondence correspondence = (*correspondences)[i];
+		int index_query = correspondence.index_query; // index of the point in the source (first) point cloud
+		int index_match = correspondence.index_match;
+
+		pcl::PointXYZRGB source_point = c1->points[correspondence.index_query];
+		pcl::PointXYZRGB target_point = transformed_cloud->points[correspondence.index_match];
+		cout << target_point << endl;
+		viewer.addLine(source_point, target_point, 255, 0, 0, std::to_string(counter)); 
+	}
+
+	viewer.spinOnce(5000);
+}
+
 void normals(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud){
 	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> normal_estimation;
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
@@ -90,8 +116,8 @@ void normals(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud){
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr iss(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud){
 	float iss_salient_radius = 0.05;   // Radio de influencia para puntos salientes
 	float iss_non_max_radius = 0.04;   // Radio de no máxima supresión
-	float iss_gamma_21 = 0.5;                       // Umbral de variabilidad
-	float iss_gamma_32 = 0.2;                       // Umbral de variabilidad
+	float iss_gamma_21 = 0.2;                       // Umbral de variabilidad
+	float iss_gamma_32 = 0.5;                       // Umbral de variabilidad
 	float iss_min_neighbors = 4;                      // Mínimo de vecinos
 	int iss_threads = 8;  
 
@@ -117,11 +143,11 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr iss(pcl::PointCloud<pcl::PointXYZRGB>::Pt
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr keypoints(new pcl::PointCloud<pcl::PointXYZRGB>);
 	iss_detector.compute(*keypoints);
 
-	pcl::visualization::PCLVisualizer viewer("ISS Keypoints");
-	viewer.addPointCloud(cloud, "cloud");
-	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> keypoints_color_handler(keypoints, 0, 255, 0);
-	viewer.addPointCloud<pcl::PointXYZRGB>(keypoints, keypoints_color_handler, "keypoints");
-	viewer.spinOnce(1000);
+	// pcl::visualization::PCLVisualizer viewer("ISS Keypoints");
+	// viewer.addPointCloud(cloud, "cloud");
+	// pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> keypoints_color_handler(keypoints, 0, 255, 0);
+	// viewer.addPointCloud<pcl::PointXYZRGB>(keypoints, keypoints_color_handler, "keypoints");
+	// viewer.spinOnce(1000);
 	return keypoints;
 }
 
@@ -142,45 +168,15 @@ pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfh(pcl::PointCloud<pcl::PointXYZRGB
 	fpfh.setInputCloud(cloud);
 	fpfh.setInputNormals(normals);
 	fpfh.setSearchMethod(tree);
-	fpfh.setRadiusSearch(0.05); // Adjust the radius based on your data AJUSTAR
+	fpfh.setRadiusSearch(0.06); // Adjust the radius based on your data AJUSTAR
+	// Porque tiene que ser mayor que el radio de las normales
 	fpfh.compute(*fpfh_features);
 	cout << "YEPA3";
 	return fpfh_features;
-	// pcl::KdTreeFLANN<pcl::FPFHSignature33> match_search;
-	// match_search.setInputCloud(fpfh_features); // Set the feature descriptors of the first point cloud
 
-	// std::vector<int> match_indices;
-	// std::vector<float> match_distances;
-
-	// // Find the closest matches for each feature in the second point cloud
-	// for (size_t i = 0; i < fpfh_features2->size(); ++i) {
-	// 	match_search.nearestKSearch((*fpfh_features2)[i], 1, match_indices, match_distances);
-	// 	// Do something with the matches (e.g., store them in a data structure)
-	// }
 }
 
-void visualizarCorrespondencias(pcl::PointCloud<pcl::PointXYZRGB>::Ptr& c1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& c2, pcl::CorrespondencesPtr correspondences){
-	pcl::visualization::PCLVisualizer viewer("ISS Keypoints");
-	viewer.addPointCloud(c1, "c1");
 
-	viewer.addPointCloud(c2, "c2");
-
-
-	for(size_t i = 0; i < correspondences->size(); ++i){
-		pcl::Correspondence correspondence = correspondences[i];
-		int index_query = correspondence.index_query; // index of the point in the source (first) point cloud
-		int index_match = correspondence.index_match;
-
-		pcl::PointXYZRGB source_point = c1->points[correspondence.index_query];
-		pcl::PointXYZRGB target_point = c2->points[correspondence.index_match];
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr line(new pcl::PointCloud<pcl::PointXYZRGB>);
-		line->push_back(source_point);
-		line->push_back(target_point);
-		viewer.addPointCloud(line, "line"); 
-	}
-
-	viewer.spinOnce(1000);
-}
 
 void callback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& msg)
 {
@@ -191,6 +187,7 @@ void callback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& msg)
 			pcl::PointCloud<pcl::PointXYZRGB>::Ptr x0 = cloud_vector[i];
 			pcl::PointCloud<pcl::PointXYZRGB>::Ptr x1 = cloud_vector[i+1];
 			//sacar keypoints
+			
 			pcl::PointCloud<pcl::PointXYZRGB>::Ptr key0 = iss(x0);
 			pcl::PointCloud<pcl::PointXYZRGB>::Ptr key1 = iss(x1);
 			//normals(x0);
@@ -202,27 +199,34 @@ void callback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& msg)
 			//assert(x0->size() == fpfh0->size());
 			//assert(x1->size() == fpfh1->size());
 			// Perform nearest-neighbor search
-			pcl::KdTreeFLANN<pcl::FPFHSignature33> match_search;
-			match_search.setInputCloud(fpfh1); // Set the feature descriptors of the first point cloud
+			// pcl::KdTreeFLANN<pcl::FPFHSignature33> match_search;
+			// match_search.setInputCloud(fpfh1); // Set the feature descriptors of the first point cloud
 			pcl::CorrespondencesPtr correspondences(new pcl::Correspondences());
 			
 			//Find the closest matches for each feature in the second point cloud
-			for (size_t i = 0; i < fpfh0->size(); ++i) {
-				std::vector<int> indices(1);
-				std::vector<float> sqr_distances(1);
-				//cout << "ITERACION KSEARCH" << endl;
-				// Buscar el vecino más cercano en la nube de puntos objetivo
-				int num_neighbors_found = match_search.nearestKSearch((*fpfh0)[i], 1, indices, sqr_distances);
+			pcl::registration::CorrespondenceEstimation<pcl::FPFHSignature33, pcl::FPFHSignature33> estimator;
+			estimator.setInputSource(fpfh0);
+			estimator.setInputTarget(fpfh1);
+			estimator.determineCorrespondences(*correspondences);
 
-				pcl::Correspondence correspondence;
-				correspondence.index_query = i; // Índice del punto de origen
-				correspondence.index_match = indices[0]; // Índice del punto objetivo
-				correspondence.distance = sqr_distances[0]; // Distancia al cuadrado entre los descriptores FPFH
-				correspondences->push_back(correspondence);
+			
+
+			// for (size_t i = 0; i < fpfh0->size(); ++i) {
+			// 	std::vector<int> indices(1);
+			// 	std::vector<float> sqr_distances(1);
+			// 	//cout << "ITERACION KSEARCH" << endl;
+			// 	// Buscar el vecino más cercano en la nube de puntos objetivo
+			// 	int num_neighbors_found = match_search.nearestKSearch((*fpfh0)[i], 1, indices, sqr_distances);
+
+			// 	pcl::Correspondence correspondence;
+			// 	correspondence.index_query = i; // Índice del punto de origen
+			// 	correspondence.index_match = indices[0]; // Índice del punto objetivo
+			// 	correspondence.distance = sqr_distances[0]; // Distancia al cuadrado entre los descriptores FPFH
+			// 	correspondences->push_back(correspondence);
 				
 				
-			}
-
+			// }
+			visualizarCorrespondencias(x0,x1, correspondences);
 
 			cout << "ANTES DE RANSAC " << correspondences->size() << "\n";
 			cout << "YEPA";
@@ -230,12 +234,12 @@ void callback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& msg)
 			ransac.setInputSource(key0); // MINIMA CANTIDAD DE PARAMETROS 4
 			ransac.setInputTarget(key1);
 			ransac.setInlierThreshold(0.05);
-			ransac.setMaximumIterations(100000);
+			ransac.setMaximumIterations(10000);
 			ransac.setRefineModel(true);
 			ransac.setInputCorrespondences(correspondences);
 			pcl::CorrespondencesPtr inlier_correspondences(new pcl::Correspondences());
 			ransac.getCorrespondences(*inlier_correspondences);
-
+			//visualizarCorrespondencias(x0,x1, inlier_correspondences);
 			// Verificar si se encontraron suficientes correspondencias inliers
 			cout << "PUNTOS DESPUES DE RANSAC " << inlier_correspondences->size() << "\n";
 			if (inlier_correspondences->size() < 3) {
@@ -283,7 +287,7 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::Subscriber sub = nh.subscribe<pcl::PointCloud<pcl::PointXYZRGB> >("/camera/depth/points", 1, callback);
 
-  boost::thread t(simpleVis);
+  //boost::thread t(simpleVis);
   //boost::thread t2(normalVis);
 
   while(ros::ok())
